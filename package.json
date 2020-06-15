@@ -1,6 +1,6 @@
 {
-  "name": "plugin-dialpad-enhanced",
-  "version": "0.0.1",
+  "name": "plugin-dialpad",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "bootstrap": "flex-plugin check-start",

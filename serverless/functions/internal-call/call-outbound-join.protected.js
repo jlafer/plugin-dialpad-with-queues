@@ -2,9 +2,9 @@
   This is the status event callback for twiml.dial().conference, called when
   parties join or the conference ends.
   on.participant-joined:
-    If the call was to a WebRTC client
+    If the call was to a WebRTC client and this is the dialing party
       add conference details to task attributes
-      create task for dialed agent; add task.sid to attributes
+      create task for dialed queue or agent; add task.sid to attributes
       update attributes of calling agent's task
   on conference-end:
     update task.assignmentStatus to wrapping or cancelled for both agent's task
@@ -24,34 +24,38 @@ const updateTaskAttributes = (client, taskSid, attributes) =>
 /*
   Creates Task for the called agent.
 */
-const addParticipantToConference = (client, conferenceSid, taskSid, to, from) => {
-  if (to.substring(0, 6) === 'client') {
-    return client
-      .taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID)
-      .tasks
+const addTaskForTarget = (client, conferenceSid, taskSid, targetType, to, from) => {
+  const attributes = {
+    targetType,
+    to: to,
+    name: from,
+    from: process.env.TWILIO_NUMBER,
+    autoAnswer: 'false',
+    conferenceSid: taskSid,
+    conference: {
+      sid: conferenceSid,
+      friendlyName: taskSid
+    },
+    internal: 'true',
+    client_call: true,
+  };
+  console.log('addTaskForTarget: TWILIO_WORKSPACE_SID:', process.env.TWILIO_WORKSPACE_SID);
+  console.log('addTaskForTarget: TWILIO_NUMBER:', attributes.from);
+  if (targetType === 'agent') {
+    attributes.targetWorker = to;
+  }
+  console.log('addTaskForTarget: attributes:', attributes);
+  //JLAFER commented out check for client-type target, to create tasks when target is queue
+  //if (to.substring(0, 6) === 'client') {
+    return client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID).tasks
       .create(
         {
-          attributes: JSON.stringify(
-            {
-              to: to,
-              // direction: 'outbound',
-              name: from,
-              from: process.env.TWILIO_NUMBER,
-              targetWorker: to,   // target for routing (the called worker's uri)
-              autoAnswer: 'false',
-              conferenceSid: taskSid,
-              conference: {
-                sid: conferenceSid,
-                friendlyName: taskSid
-              },
-              internal: 'true',
-              client_call: true,
-            //   outbound_to: to
-            }),
+          attributes: JSON.stringify(attributes),
           workflowSid: process.env.TWILIO_WORKFLOW_SID,
           taskChannel: 'voice'
-        })
-  }
+        }
+      )
+  //}
 };
 
 exports.handler = async (context, event, callback) => {
@@ -71,17 +75,18 @@ exports.handler = async (context, event, callback) => {
         conference: {
           sid: ConferenceSid,
           participants: {
-            worker: CallSid   // added participant's Call sid
+            worker: CallSid   // new participant's Call sid
           }
         }
       }
       // worker_call_sid is apparently set by TR during reservation.call
       // if the dialing worker is the participant just added 
       if (attributes.worker_call_sid === attributes.conference.participants.worker) {
-        // get 'to' which is the dialed worker's contact_uri
-        const { to, from } = attributes;
+        // get 'to' which is the dialed worker's contact_uri OR a TaskQueue name
+        const { to, from, targetType } = attributes;
         // create Task for the dialed agent
-        const result = await addParticipantToConference(client, ConferenceSid, taskSid, to, from);
+        const result = await addTaskForTarget(client, ConferenceSid, taskSid, targetType, to, from);
+        console.log('result:', result);
         // save the called agent's task sid in the calling agent's task attributes
         // for use in cleanup at conference-end (see below)
         attributes.conference.participants.taskSid = result.sid;

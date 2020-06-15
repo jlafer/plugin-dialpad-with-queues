@@ -37,6 +37,7 @@ class ParticipantName extends React.Component {
     const { participant, task } = this.props;
 
     if (participant.participantType === 'customer') {
+      // NOTE: attributes.outbound_to is set by workerClient.createTask from the 'to' parameter
       this.setState({ name: task.attributes.outbound_to || task.attributes.name });
       return;
     }

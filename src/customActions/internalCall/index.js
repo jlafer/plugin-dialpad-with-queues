@@ -8,7 +8,8 @@ export const isInternalCall = payload =>
   This creates a call from Twilio to the current agent for the reservation,
     which can be the dialing agent or the target agent.
   The call webhook returns TwiML to put the call into a conference.
-  When called, task.attributes.from equals the contact_uri of the dialing agent.
+  For dialing agent, task.attributes.from equals the contact_uri of the dialing agent.
+  For the target agent, it equals env.TWILIO_NUMBER
  */
 export const acceptInternalTask = ({ 
   reservation, payload 

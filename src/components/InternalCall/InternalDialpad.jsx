@@ -17,14 +17,17 @@ import { makeInternalCall } from './index';
 const styles = theme => (sharedTheme(theme));
 
 class InternalDialpad extends React.Component {
-  state = { 
+  state = {
+    queueList: [],
     workerList: [], 
+    selectedQueue: null,
     selectedWorker: null,
     searchQuery: "" 
   };
   
   async componentDidMount() {
     this.setWorkers(this.state.searchQuery);
+    this.setQueues(this.state.searchQuery);
   }
 
   // search in Sync for all taskrouter workers
@@ -39,17 +42,50 @@ class InternalDialpad extends React.Component {
     });
   }
 
+  setQueues = (query) => {
+    this.props.manager.insightsClient.instantQuery('tr-queue').then((q) => {
+      q.on('searchResult', (items) => {
+        this.setState({ queueList: Object.keys(items).map(queueSid => items[queueSid]) });
+        console.log('setQueues:', items);
+      });
+      q.search(query);
+    });
+  }
+
   handleChange = event => {
     this.setState({ selectedWorker: event.target.value})
   }
 
+  handleQueueChange = event => {
+    this.setState({ selectedQueue: event.target.value})
+  }
+
   makeCall = () => {
-    if(this.state.selectedWorker != null) {
+    if (this.state.selectedWorker != null) {
       const { manager } = this.props;
+      const selectedWorker = this.state.workerList.find(worker => 
+        worker.attributes.contact_uri ===  this.state.selectedWorker);
+      const {friendly_name} = selectedWorker;
       makeInternalCall({ 
         manager, 
-        selectedWorker: this.state.selectedWorker, 
-        workerList: this.state.workerList 
+        targetType: 'agent',
+        selectedTarget: this.state.selectedWorker, 
+        targetName: friendly_name 
+      });
+    }
+  }
+
+  makeQueueCall = () => {
+    if (this.state.selectedQueue != null) {
+      const { manager } = this.props;
+      const selectedQueue = this.state.queueList.find(queue => 
+        queue.queue_name ===  this.state.selectedQueue);
+      const {queue_name} = selectedQueue;
+      makeInternalCall({ 
+        manager, 
+        targetType: 'queue',
+        selectedTarget: queue_name,
+        targetName: queue_name
       });
     }
   }
@@ -60,6 +96,35 @@ class InternalDialpad extends React.Component {
       manager.workerClient.attributes;
     return (
       <div className={classes.boxDialpad}>
+        <div className={classes.titleAgentDialpad}>Call via Queue</div>
+        <div className={classes.subtitleDialpad}>Select Queue</div>
+        <FormControl className={classes.formControl}>
+          <Select
+            value={this.state.selectedQueue}
+            onChange={this.handleQueueChange}
+            isClearable
+          >
+            {this.state.queueList.map((queue)=> {
+              const { queue_name, queue_sid } = queue;
+              return (
+                <MenuItem value={queue_name} key={queue_sid}>
+                  {queue_name}
+                </MenuItem>
+              )
+            })}
+          </Select>
+          <div className={classes.buttonAgentDialpad}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              disabled={!this.state.selectedQueue} 
+              onClick={this.makeQueueCall}
+              className={classes.dialPadBtn}
+            >
+              <Icon icon="Call"/>
+            </Button>
+          </div>
+        </FormControl>
         <div className={classes.titleAgentDialpad}>Call Agent</div>
         <div className={classes.subtitleDialpad}>Select agent</div>
         <FormControl className={classes.formControl}>

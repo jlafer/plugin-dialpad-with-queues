@@ -20,14 +20,14 @@ export const loadInternalCallInterface = (flex, manager) => {
   them to a conference.
 
   Parameters:
-    selectedWorker - the contact_uri of the worker to call 
+     selectedTarget - the contact_uri of the worker to call 
     workerList - list of all worker objects 
 
-  NOTE: JLAFER - there is no need to pass the list of all agents;
-    only the selectedWorker friendly_name is needed
+  NOTE: JLAFER - there is no need to pass the list of all workers;
+    only the  selectedTarget friendly_name is needed
 */
 export const makeInternalCall = ({ 
-    manager, selectedWorker, workerList
+    manager, targetType,  selectedTarget, targetName
 }) => {
     const { 
       workflow_sid, 
@@ -35,17 +35,18 @@ export const makeInternalCall = ({
     } = manager.serviceConfiguration.outbound_call_flows.default;
     const { REACT_APP_TASK_CHANNEL_SID: taskChannelSid } = process.env;
     const { contact_uri } = manager.workerClient.attributes;
+    // this method creates an outbound task
     manager.workerClient.createTask(
-      selectedWorker, // to
-      contact_uri,    // from (callerid)
-      workflow_sid, 
-      queue_sid,
+      selectedTarget, // to -> attributes.outbound_to
+      contact_uri,    // from -> attributes.from
+      workflow_sid,   // workflow to handle routing
+      queue_sid,      // queue used for reporting only
       { // options
-        attributes: { 
-          to: selectedWorker,
+        attributes: {
+          targetType,
+          to: selectedTarget,
           direction: 'outbound',
-          name: workerList.find(worker => 
-            worker.attributes.contact_uri === selectedWorker).friendly_name,
+          name: targetName,
           from: contact_uri,
           targetWorker: contact_uri,  // target for routing (the calling worker's uri)
           autoAnswer: 'true',
