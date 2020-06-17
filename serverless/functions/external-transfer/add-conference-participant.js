@@ -1,6 +1,7 @@
 /*
   This function dials an external party and adds them to an existing conference,
-  named by the taskSid parameter.
+  named by the taskSid parameter. It uses conference.participants.create(to, from, ...) to
+  make the call.
   Event:
     conferenceSid - the SID of the conference for the dialing agent
     JLAFER - renamed taskSid to conferenceSid, reflecting what the caller is actually passing

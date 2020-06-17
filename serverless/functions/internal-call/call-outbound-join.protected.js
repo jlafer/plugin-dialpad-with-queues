@@ -10,16 +10,16 @@
     update task.assignmentStatus to wrapping or cancelled for both agent's task
  */
 const fetchTask = (client, taskSid) => 
-    client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID)
-        .tasks(taskSid)
-        .fetch();
+  client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID)
+    .tasks(taskSid)
+    .fetch();
 
 const updateTaskAttributes = (client, taskSid, attributes) => 
-    client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID)
-        .tasks(taskSid)
-        .update({
-          attributes: JSON.stringify(attributes)
-        });
+  client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID)
+    .tasks(taskSid)
+    .update({
+      attributes: JSON.stringify(attributes)
+    });
 
 /*
   Creates Task for the called agent.

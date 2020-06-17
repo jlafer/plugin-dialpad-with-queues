@@ -3,6 +3,9 @@
   merged from excellent work done by Terence Rogers
   https://github.com/trogers-twilio/plugin-external-conference-warm-transfer
 
+  NOTE: this is only called when doing an external transfer - not when dialing
+    an internal call
+
 */
 import { ConferenceParticipant, Manager  } from '@twilio/flex-ui';
 import { request } from './request';
@@ -75,8 +78,8 @@ class ConferenceService {
    * Copies the behavior of Flex native code when it adds a party to a call.
    * It creates a ConferenceParticipant in the Conference object for the party
    * that was dialed.
-   * It then makes an updated copy of the Conferences property and dispatches
-   * a redux action to update state.
+   * It then makes an updated copy of the flex.conferences property and dispatches
+   * a redux action to update it in the state.
    */
   addConnectingParticipant = (conferenceSid, callSid, participantType) => {
     const flexState = this.manager.store.getState().flex;
@@ -87,30 +90,23 @@ class ConferenceService {
 
     console.log('Populating conferences set');
     conferenceStates.forEach(conference => {
-
       const currentConference = conference.source;
       console.log('Checking conference SID:', currentConference.conferenceSid);
       if (currentConference.conferenceSid !== conferenceSid) {
-
         console.log('Not the desired conference');
         conferences.add(currentConference);
-
       } else {
-
         const participants = currentConference.participants;
         const fakeSource = {
           connecting: true,
           participant_type: participantType,
           status: 'joined'
         };
-
         const fakeParticipant = new ConferenceParticipant(fakeSource, callSid);
         console.log('Adding fake participant:', fakeParticipant);
         participants.push(fakeParticipant);
         conferences.add(conference.source);
-
       }
-      
     });
     console.log('Updating conferences:', conferences);
     dispatch({ type: 'CONFERENCE_MULTIPLE_UPDATE', payload: { conferences } });

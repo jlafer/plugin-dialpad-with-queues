@@ -14,20 +14,20 @@ export const isInternalCall = payload =>
 export const acceptInternalTask = ({ 
   reservation, payload 
 }) => {
-    const { REACT_APP_SERVICE_BASE_URL } = process.env;
-    if (typeof(reservation.task.attributes.conference) !== 'undefined') {
-        reservation.call(
-          reservation.task.attributes.from,   // from (callerid)
-          `${REACT_APP_SERVICE_BASE_URL}/internal-call/agent-join-conference?conferenceName=${reservation.task.attributes.conference.friendlyName}`,
-          {accept: true}
-        )
-    } else { 
-        reservation.call(
-            reservation.task.attributes.from,
-            `${REACT_APP_SERVICE_BASE_URL}/internal-call/agent-outbound-join?taskSid=${payload.task.taskSid}`, 
-            {accept: true}
-        )
-    }
+  const { REACT_APP_SERVICE_BASE_URL } = process.env;
+  if (typeof(reservation.task.attributes.conference) !== 'undefined') {
+    reservation.call(
+      reservation.task.attributes.from,   // from (callerid)
+      `${REACT_APP_SERVICE_BASE_URL}/internal-call/agent-join-conference?conferenceName=${reservation.task.attributes.conference.friendlyName}`,
+      {accept: true}
+    )
+  } else { 
+    reservation.call(
+      reservation.task.attributes.from,
+      `${REACT_APP_SERVICE_BASE_URL}/internal-call/agent-outbound-join?taskSid=${payload.task.taskSid}`, 
+      {accept: true}
+    )
+  }
 }
 
 export const rejectInternalTask = async ({ 
