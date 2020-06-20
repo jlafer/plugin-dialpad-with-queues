@@ -59,10 +59,12 @@ class ConferenceDialog extends React.Component {
   addConferenceParticipant = async () => {
     const to = this.state.conferenceTo;
     const { task } = this.props;
-    const conference = task && (task.conference || {});
-    const { conferenceSid } = conference;
-    const mainConferenceSid = task.attributes.conference ? 
-      task.attributes.conference.sid : conferenceSid;
+    // JLAFER override to demonstrate getting conferenceSid from state via props
+    //const conference = task && (task.conference || {});
+    //const { conferenceSid } = conference;
+    //const mainConferenceSid = task.attributes.conference ? 
+    //  task.attributes.conference.sid : conferenceSid;
+    const mainConferenceSid = this.props.conferenceSid;
     let from;
     if (this.props.phoneNumber) {
       from = this.props.phoneNumber
@@ -137,9 +139,13 @@ const mapStateToProps = state => {
   const componentViewStates = state.flex.view.componentViewStates;
   const conferenceDialogState = componentViewStates && componentViewStates.ConferenceDialog;
   const isOpen = conferenceDialogState && conferenceDialogState.isOpen;
+  // JLAFER add conferenceSid from custom state, when set
+  const {voiceConference} = state.dialpad.customConference;
+  const conferenceSid = (voiceConference) ? voiceConference.conferenceSid : null;;
   return {
     isOpen,
-    phoneNumber: state.flex.worker.attributes.phone
+    phoneNumber: state.flex.worker.attributes.phone,
+    conferenceSid
   };
 };
 

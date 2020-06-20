@@ -32,7 +32,7 @@ class InternalDialpad extends React.Component {
 
   // search in Sync for all taskrouter workers
   // JLAFER this won't scale well for enterprise customers; for them, only
-  //   queue selection will perform well
+  //   queue selection or a smaller subset of agents will perform well
   setWorkers = (query) => {
     this.props.manager.insightsClient.instantQuery('tr-worker').then((q) => {
       q.on('searchResult', (items) => {

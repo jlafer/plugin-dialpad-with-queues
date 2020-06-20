@@ -5,11 +5,13 @@ import ConferenceService from '../helpers/ConferenceService';
 
 export default (manager) => {
   Actions.addListener('beforeAcceptTask', (payload, abortFunction) => {
-      const reservation = payload.task.sourceObject;
-      if(isInternalCall(payload)){
-        abortFunction();
-        acceptInternalTask({ reservation, payload });
-      } 
+    // JLAFER use a custom Redux action to save the current task in state
+    manager.store.dispatch({type: 'SET_TASK', payload: {task: payload.task}})
+    const reservation = payload.task.sourceObject;
+    if(isInternalCall(payload)){
+      abortFunction();
+      acceptInternalTask({ reservation, payload });
+    } 
   })
 
   Actions.addListener('beforeRejectTask', (payload, abortFunction) => {
@@ -53,6 +55,8 @@ export default (manager) => {
 
   Actions.addListener('beforeUnholdParticipant', (payload, abortFunction) => {
     const { participantType, targetSid: participantSid, task } = payload;
+    console.log('BEFOREUNOLDPARTICIPANT: conference:', task.conference);
+    manager.store.dispatch({type: 'MY_UNHOLD_PARTICIPANT', payload: {task: payload.task}})
     if (participantType !== 'unknown') {
       return;
     }

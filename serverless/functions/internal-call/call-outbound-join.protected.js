@@ -45,7 +45,7 @@ const addTaskForTarget = (client, conferenceSid, taskSid, targetType, to, from) 
     attributes.targetWorker = to;
   }
   console.log('addTaskForTarget: attributes:', attributes);
-  //JLAFER commented out check for client-type target, to create tasks when target is queue
+  // JLAFER commented out check for client-type target, to create tasks when target is queue
   //if (to.substring(0, 6) === 'client') {
     return client.taskrouter.workspaces(process.env.TWILIO_WORKSPACE_SID).tasks
       .create(

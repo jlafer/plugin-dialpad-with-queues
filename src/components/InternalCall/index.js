@@ -20,11 +20,11 @@ export const loadInternalCallInterface = (flex, manager) => {
   them to a conference.
 
   Parameters:
-     selectedTarget - the contact_uri of the worker to call 
+    selectedTarget - the contact_uri of the worker to call 
     workerList - list of all worker objects 
 
   NOTE: JLAFER - there is no need to pass the list of all workers;
-    only the  selectedTarget friendly_name is needed
+    only the  selectedTarget's friendly_name is needed
 */
 export const makeInternalCall = ({ 
     manager, targetType,  selectedTarget, targetName
