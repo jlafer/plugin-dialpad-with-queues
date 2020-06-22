@@ -44,8 +44,13 @@ class ConferenceDialog extends React.Component {
     this.setState({ conferenceTo: value });
   }
 
-  handleDialButton = () => {
+  handleAddPartyButton = () => {
     this.addConferenceParticipant();
+    this.closeDialog();
+  }
+
+  handleBlindXferButton = () => {
+    this.blindTransfer();
     this.closeDialog();
   }
 
@@ -56,14 +61,48 @@ class ConferenceDialog extends React.Component {
     participantCallSid = addParticipant(mainConferenceSid, from, to) and
     addConnectingParticipant(mainConferenceSid, participantCallSid, 'unknown')
   */
-  addConferenceParticipant = async () => {
+ addConferenceParticipant = async () => {
+  const to = this.state.conferenceTo;
+  const { task } = this.props;
+  // JLAFER override to demonstrate getting conferenceSid from state via props
+  //const conference = task && (task.conference || {});
+  //const { conferenceSid } = conference;
+  //const mainConferenceSid = task.attributes.conference ? 
+  //  task.attributes.conference.sid : conferenceSid;
+  const mainConferenceSid = this.props.conferenceSid;
+  let from;
+  if (this.props.phoneNumber) {
+    from = this.props.phoneNumber
+  } else {
+    from = Manager.getInstance().serviceConfiguration.outbound_call_flows.default.caller_id;
+  }
+
+  // JLAFER added to ensure caller is on hold before adding new party
+  Actions.invokeAction('HoldCall', {task});
+
+  // adding entered number to the conference
+  console.log(`Adding ${to} to conference`);
+  let participantCallSid;
+  try {
+    participantCallSid = await ConferenceService.addParticipant(
+      mainConferenceSid,  // name of the current conference
+      from,               // callerid
+      to                  // dialed number
+    );
+    ConferenceService.addConnectingParticipant(
+      mainConferenceSid,  // name of the conference
+      participantCallSid, // callSid for the call to the new party
+      'unknown'           // participant type - used in Flex state
+    );
+  } catch (error) {
+    console.error('Error adding conference participant:', error);
+  }
+  this.setState({ conferenceTo: '' });
+}
+
+blindTransfer = async () => {
     const to = this.state.conferenceTo;
     const { task } = this.props;
-    // JLAFER override to demonstrate getting conferenceSid from state via props
-    //const conference = task && (task.conference || {});
-    //const { conferenceSid } = conference;
-    //const mainConferenceSid = task.attributes.conference ? 
-    //  task.attributes.conference.sid : conferenceSid;
     const mainConferenceSid = this.props.conferenceSid;
     let from;
     if (this.props.phoneNumber) {
@@ -72,11 +111,8 @@ class ConferenceDialog extends React.Component {
       from = Manager.getInstance().serviceConfiguration.outbound_call_flows.default.caller_id;
     }
 
-    // JLAFER added to ensure caller is on hold before adding new party
-    Actions.invokeAction('HoldCall', {task});
-
-    // adding entered number to the conference
-    console.log(`Adding ${to} to conference`);
+    // BRIEFLY adding entered number to the conference
+    console.log(`Performing blind transfer to ${to}`);
     let participantCallSid;
     try {
       participantCallSid = await ConferenceService.addParticipant(
@@ -89,6 +125,8 @@ class ConferenceDialog extends React.Component {
         participantCallSid, // callSid for the call to the new party
         'unknown'           // participant type - used in Flex state
       );
+      // added for blind transfer
+      setTimeout(() => {Actions.invokeAction('HangupCall', {task})}, 500);
     } catch (error) {
       console.error('Error adding conference participant:', error);
     }
@@ -117,11 +155,17 @@ class ConferenceDialog extends React.Component {
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={this.handleDialButton}
+        <Button
+            onClick={this.handleAddPartyButton}
             color="primary"
           >
-            {Manager.getInstance().strings.DIALPADExternalTransferPhoneNumberPopupDial}
+            Add Party
+          </Button>
+          <Button
+            onClick={this.handleBlindXferButton}
+            color="primary"
+          >
+            Blind Transfer
           </Button>
           <Button
             onClick={this.closeDialog}

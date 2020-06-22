@@ -22,9 +22,11 @@
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",
     "craco-config-flex-plugin": "^3.10.1",
+    "deep-object-diff": "^1.1.0",
     "env-cmd": "^10.1.0",
     "flex-plugin": "^3.5.0",
     "flex-plugin-scripts": "^3.11.0",
+    "ramda": "^0.27.0",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts": "^3.4.1"
