@@ -9,17 +9,16 @@ exports.handler = TokenValidator(async (context, event, callback) => {
         callSid,
     } = event;
 
-    console.log(`Getting properties for call SID ${callSid}`);
+    //console.log(`Getting properties for call SID ${callSid}`);
     const client = context.getTwilioClient();
     
     const callProperties = await client
         .calls(callSid)
         .fetch();
 
-    console.log('Call properties:');
-
+    //console.log('Call properties:');
     Object.keys(callProperties).forEach(key => {
-        console.log(`${key}: ${callProperties[key]}`);
+      //console.log(`${key}: ${callProperties[key]}`);
     });
 
     callback(null, assets.response("json", callProperties));

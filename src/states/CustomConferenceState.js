@@ -23,12 +23,16 @@ const getVoiceConference = (conferences) => {
 }
 
 const initialState = {
+  syncMap: null,
   task: null,
   voiceConference: null
 };
 
 export function reduce(state = initialState, action) {
   switch (action.type) {
+    case 'SET_SYNCMAP':
+      const {syncMap} = action.payload;
+      return {...state, syncMap};
     case 'SET_TASK':
       const {task} = action.payload;
       if (task && task.taskChannelUniqueName === 'voice')
@@ -39,8 +43,8 @@ export function reduce(state = initialState, action) {
         action.payload.conferences
       );
       // JLAFER for debug purposes only, diff the changes to flex.conferences
-      const confnceDiff = diff(state.conference, newConference);
-      console.log('CONFERENCE_DIFF:', confnceDiff);
+      //const confnceDiff = diff(state.conference, newConference);
+      //console.log('CONFERENCE_DIFF:', confnceDiff);
       const voiceConference = (state.task) ? state.task.conference : state.voiceConference;
       return {...state, voiceConference};
     }

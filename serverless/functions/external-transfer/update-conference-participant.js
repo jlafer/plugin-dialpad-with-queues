@@ -25,10 +25,9 @@ exports.handler = TokenValidator(async (context, event, callback) => {
       return {};
     });
 
-  console.log('Participant response properties:');
-
+  //console.log('Participant response properties:');
   Object.keys(participantResponse).forEach(key => {
-    console.log(`${key}: ${participantResponse[key]}`);
+    //console.log(`${key}: ${participantResponse[key]}`);
   });
 
   return callback(null, assets.response("json", participantResponse));

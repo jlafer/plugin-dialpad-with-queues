@@ -22,8 +22,8 @@ exports.handler = TokenValidator(async (context, event, callback) => {
       hold,
     });
 
-  console.log(`Participant ${participant} updated in conference \
-  ${conference}. Participant response properties:`);
+  //console.log(`Participant ${participant} updated in conference \
+  //${conference}. Participant response properties:`);
 
   Object.keys(participantsResponse).forEach(key => {
     console.log(`  ${key}:`, participantsResponse[key]);
