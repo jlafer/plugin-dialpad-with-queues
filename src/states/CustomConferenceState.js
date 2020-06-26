@@ -1,5 +1,4 @@
-import * as R from 'ramda';
-import {diff} from 'deep-object-diff';
+//import {diff} from 'deep-object-diff';
 
 /*
   NOTE: this reducer demonstrates how to capture the current voice ITask object
@@ -39,12 +38,13 @@ export function reduce(state = initialState, action) {
         return {...state, task};
       return state;
     case ACTION_CONFERENCE_MULTIPLE_UPDATE: {
+      /* JLAFER for debug purposes only, diff the changes to flex.conferences
       const newConference = getVoiceConference(
         action.payload.conferences
       );
-      // JLAFER for debug purposes only, diff the changes to flex.conferences
-      //const confnceDiff = diff(state.conference, newConference);
-      //console.log('CONFERENCE_DIFF:', confnceDiff);
+      const confnceDiff = diff(state.conference, newConference);
+      console.log('CONFERENCE_DIFF:', confnceDiff);
+      */
       const voiceConference = (state.task) ? state.task.conference : state.voiceConference;
       return {...state, voiceConference};
     }
