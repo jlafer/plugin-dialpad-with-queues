@@ -1,6 +1,16 @@
-# Native Flex Dialpad Add-on 
+# Native Flex Dialpad Add-on - With Educational Extensions
 
-The native Flex Dialpad does not support agent-to-agent direct calls or external transfers yet. This plugin is meant to be an add-on to the native Flex Diapad, adding both agent-to-agent direct calls and external transfers.
+The native Flex Dialpad does not support agent-to-agent direct calls or external transfers yet. The flex-dialpad-addon-plugin is meant to be an add-on to the native Flex Diapad, adding both agent-to-agent direct calls and external transfers.
+
+THIS plugin (jlafer/flex-dialpad-addon-plugin) is an extension of the above and demonstrates one way of adding the following features:
+- direct-dialing through queues
+- putting the caller on hold before consulting or transferring to an external party
+- receiving notifications when a third-party is being added to the existing (conference) call
+
+PLEASE NOTE: in addition to the setup needed for flex-dialpad-addon-plugin (described below), this plugin requires creation of a Sync map. The following CLI command can be used:
+`twilio api:sync:v1:services:maps:create --service-sid ISxxxx --unique-name=DialingEventsMap`
+
+To use the Sync map, three additional environment variables must be added to the serverless .env file: `API_KEY`, `API_SECRET` and `TWILIO_SYNC_SERVICE`. If you don't have one already, get a new API key SID and secret from the Twilio Console and enter those values for the first two environment variables above. The SID for the default Twilio Sync Service or a custom service can be entered in the third variable.
 
 ## Flex plugin
 
